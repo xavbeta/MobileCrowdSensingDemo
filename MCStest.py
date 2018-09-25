@@ -2,7 +2,10 @@ import pandas as pd
 import csv
 import geopy.distance
 
-
+# Used to aggregate data point closer than 20 meters
+# Data points are aggregated averaging the temperature value
+# and keeping the location of the first point in the list as
+# reference (just for simplicity)
 def aggregate_neighbours(data):
 
     indexes = list(data.index.values)
@@ -30,11 +33,11 @@ def aggregate_neighbours(data):
 #####################
 ### RECEIVE DATA  ###
 #####################
-data = pd.read_csv('mcs.csv', decimal='.', error_bad_lines=False, delimiter=',', quoting=csv.QUOTE_ALL)
+data = pd.read_csv('mcs-input.csv', decimal='.', error_bad_lines=False, delimiter=',', quoting=csv.QUOTE_ALL)
 
-#######################
-### DATA FILTERING  ###
-#######################
+###########################
+### DATA PRE-PROCESSING ###
+###########################
 df = data['Coordinates'].str.split(',', expand=True).rename(columns={1: 'longitude', 0: 'latitude'})
 df = df.assign(PerceivedTemperature=data['Perceived temperature'].values)
 print(df)
@@ -46,7 +49,7 @@ print(df)
 df = aggregate_neighbours(df)
 print(df)
 
-########################
-### STORE INTO A DB  ###
-########################
+##########################
+### STORE INTO A "DB"  ###
+##########################
 df.to_csv('mcs-cleaned.csv', encoding='utf-8', index=False)
